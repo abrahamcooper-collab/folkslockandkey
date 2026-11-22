@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.playwright-mcp/
+
+# Client photo originals (full-size, contain GPS EXIF); optimized copies live in public/images
+client-photos-original/
