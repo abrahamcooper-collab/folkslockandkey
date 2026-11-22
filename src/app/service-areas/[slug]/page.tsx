@@ -17,7 +17,7 @@ import { Hero } from "@/components/sections/Hero";
 import { Highlights } from "@/components/sections/Highlights";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { ServiceAreas } from "@/components/sections/ServiceAreas";
-import { ServicesGrid } from "@/components/sections/ServicesGrid";
+import { ServicesGrid, serviceCard } from "@/components/sections/ServicesGrid";
 import { WhyChoose } from "@/components/sections/WhyChoose";
 import { BusinessName, RichText } from "@/components/ui/BusinessName";
 import { JsonLd } from "@/components/ui/JsonLd";
@@ -118,15 +118,7 @@ export default async function AreaPage({ params }: PageProps<"/service-areas/[sl
             installation, rekeying, and key services.
           </>
         }
-        cards={cardSlugs.map((serviceSlug) => {
-          const service = requireService(serviceSlug);
-          return {
-            icon: service.icon,
-            title: service.name,
-            description: service.summary,
-            href: servicePath(serviceSlug),
-          };
-        })}
+        cards={cardSlugs.map((serviceSlug) => serviceCard(requireService(serviceSlug)))}
         background="white"
       />
       <WhyChoose />

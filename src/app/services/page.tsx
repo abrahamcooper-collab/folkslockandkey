@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { categories, servicePath, servicesInCategory } from "@/content/services";
+import { categories, servicesInCategory } from "@/content/services";
 import { innerHeroFeatures } from "@/content/page-features";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { CtaBand } from "@/components/sections/CtaBand";
@@ -7,7 +7,7 @@ import { Hero } from "@/components/sections/Hero";
 import { Highlights } from "@/components/sections/Highlights";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { ServiceAreas } from "@/components/sections/ServiceAreas";
-import { ServicesGrid } from "@/components/sections/ServicesGrid";
+import { ServicesGrid, serviceCard } from "@/components/sections/ServicesGrid";
 import { WhyChoose } from "@/components/sections/WhyChoose";
 import { BusinessName } from "@/components/ui/BusinessName";
 import { JsonLd } from "@/components/ui/JsonLd";
@@ -51,12 +51,7 @@ export default function ServicesPage() {
           title={index === 0 ? "Complete Locksmith Services for Every Need" : "Key Duplication for Every Key"}
           intro={category.description}
           background={index === 0 ? "cream" : "white"}
-          cards={servicesInCategory(category.slug).map((service) => ({
-            icon: service.icon,
-            title: service.name,
-            description: service.summary,
-            href: servicePath(service.slug),
-          }))}
+          cards={servicesInCategory(category.slug).map((service) => serviceCard(service))}
         />
       ))}
       <WhyChoose />

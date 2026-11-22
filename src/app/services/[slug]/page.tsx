@@ -17,7 +17,7 @@ import { Hero } from "@/components/sections/Hero";
 import { Highlights } from "@/components/sections/Highlights";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { ServiceAreas } from "@/components/sections/ServiceAreas";
-import { ServicesGrid } from "@/components/sections/ServicesGrid";
+import { ServicesGrid, serviceCard } from "@/components/sections/ServicesGrid";
 import { WhyChoose } from "@/components/sections/WhyChoose";
 import { BusinessName, RichText } from "@/components/ui/BusinessName";
 import { JsonLd } from "@/components/ui/JsonLd";
@@ -87,12 +87,13 @@ export default async function ServicePage({ params }: PageProps<"/services/[slug
         eyebrow="Related Services"
         title={`More ${category.name}`}
         intro={category.description}
-        cards={relatedServices(service).map((related) => ({
-          icon: related.icon,
-          title: related.name,
-          description: related.summary,
-          href: servicePath(related.slug),
-        }))}
+        cards={relatedServices(service).map((related) =>
+          // Avoid repeating this page's hero photo on a related card that shares it.
+          serviceCard(
+            related,
+            related.image === service.image ? related.featureImage : related.image,
+          ),
+        )}
         background="white"
       />
       <WhyChoose />

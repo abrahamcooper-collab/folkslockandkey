@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { innerHeroFeatures } from "@/content/page-features";
-import { requireService, servicePath } from "@/content/services";
+import { requireService } from "@/content/services";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { Hero } from "@/components/sections/Hero";
 import { Highlights } from "@/components/sections/Highlights";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { ServiceAreas } from "@/components/sections/ServiceAreas";
-import { ServicesGrid } from "@/components/sections/ServicesGrid";
+import { ServicesGrid, serviceCard } from "@/components/sections/ServicesGrid";
 import { WhyChoose } from "@/components/sections/WhyChoose";
 import { BusinessName } from "@/components/ui/BusinessName";
 import { JsonLd } from "@/components/ui/JsonLd";
@@ -64,15 +64,7 @@ export default function ServiceAreasPage() {
         eyebrow="Popular Services"
         title="Locksmith Services in Every Area We Serve"
         background="white"
-        cards={popularSlugs.map((slug) => {
-          const service = requireService(slug);
-          return {
-            icon: service.icon,
-            title: service.name,
-            description: service.summary,
-            href: servicePath(slug),
-          };
-        })}
+        cards={popularSlugs.map((slug) => serviceCard(requireService(slug)))}
       />
       <WhyChoose />
       <HowItWorks />

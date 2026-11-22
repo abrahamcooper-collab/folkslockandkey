@@ -50,7 +50,7 @@ export function Logo({ variant = "header" }: { variant?: keyof typeof sizes }) {
           />
         </Link>
         <span aria-hidden="true" className={`w-px bg-gold/60 ${size.divider}`} />
-        <BusinessName className="hover:no-underline">
+        <BusinessName plain>
           <Image
             src={logoWordmark}
             alt={business.name}

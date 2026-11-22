@@ -13,6 +13,7 @@ import {
   Store,
 } from "lucide-react";
 import { homeFaqs } from "@/content/home";
+import type { ImageKey } from "@/content/images";
 import { requireService, servicePath } from "@/content/services";
 import { Automotive } from "@/components/sections/Automotive";
 import { ContactSection } from "@/components/sections/ContactSection";
@@ -23,7 +24,7 @@ import { Hero } from "@/components/sections/Hero";
 import { Highlights } from "@/components/sections/Highlights";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { ServiceAreas } from "@/components/sections/ServiceAreas";
-import { ServicesGrid, type ServiceCard } from "@/components/sections/ServicesGrid";
+import { ServicesGrid, serviceCard } from "@/components/sections/ServicesGrid";
 import { WhyChoose } from "@/components/sections/WhyChoose";
 import { BusinessName } from "@/components/ui/BusinessName";
 import { JsonLd } from "@/components/ui/JsonLd";
@@ -51,14 +52,20 @@ const featuredSlugs = [
   "master-key-systems",
 ] as const;
 
-const featuredCards: ServiceCard[] = featuredSlugs.map((slug) => {
+/**
+ * Card photos that differ from the service's own hero photo, where that photo already appears
+ * elsewhere on the home page (hero, residential and commercial sections) or reads poorly small.
+ */
+const cardImageOverrides: Partial<Record<(typeof featuredSlugs)[number], ImageKey>> = {
+  "emergency-lockout": "vanWorkbench",
+  "residential-locksmith": "brassDeadboltFairfield",
+  "commercial-locksmith": "commercialLeverDeadbolt",
+  "lost-key-service": "kwiksetDeadboltKnob",
+};
+
+const featuredCards = featuredSlugs.map((slug) => {
   const service = requireService(slug);
-  return {
-    icon: service.icon,
-    title: service.name,
-    description: service.summary,
-    href: servicePath(slug),
-  };
+  return serviceCard(service, cardImageOverrides[slug] ?? service.image);
 });
 
 const residentialItems = [
@@ -97,6 +104,7 @@ export default function HomePage() {
         }
         image="hero"
         features={heroFeatures}
+        headline="brand"
       />
       <Highlights />
       <ServicesGrid

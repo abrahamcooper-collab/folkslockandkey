@@ -11,16 +11,19 @@ const linkClass = "underline-offset-4 decoration-1 hover:underline";
 export function BusinessName({
   className = "",
   children = business.name,
+  plain = false,
 }: {
   className?: string;
   children?: ReactNode;
+  /** Skip the hover underline (for logos and display headings that style their own hover). */
+  plain?: boolean;
 }) {
   return (
     <a
       href={business.gmbUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`${linkClass} ${className}`}
+      className={`${plain ? "" : linkClass} ${className}`}
     >
       {children}
     </a>

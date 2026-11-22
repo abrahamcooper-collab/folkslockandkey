@@ -5,6 +5,8 @@
 export const business = {
   name: "Folks Lock & Key",
   /** Logo wordmark: lead word in white, accent in gold (as in the template). */
+  /** The name split as in the logo: first line white, second line gold. */
+  nameLines: ["Folks", "Lock & Key"],
   /** Slogan from the client's logo; shown under the footer logo. */
   slogan: "Security • Trust • Peace of Mind",
   phone: "(707) 290-6432",

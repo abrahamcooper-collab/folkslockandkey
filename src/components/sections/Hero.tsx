@@ -4,12 +4,16 @@ import { ArrowRight, Phone, ShieldCheck, type LucideIcon } from "lucide-react";
 import { business, phoneHref } from "@/content/business";
 import { images, type ImageKey } from "@/content/images";
 import { CONTACT_HREF } from "@/content/navigation";
+import { BusinessName } from "@/components/ui/BusinessName";
 
 export type HeroFeature = { readonly icon: LucideIcon; readonly label: string };
 
 /**
  * Template hero: copy and CTAs on the left, photo with gradient overlays on the right. Used on the
  * home page and as the page hero for every service and area page.
+ *
+ * `headline="brand"` (home page) makes the business name the large H1, styled like the logo, and
+ * demotes `titleLead`/`titleAccent` to a secondary line. `"page"` uses them as the H1.
  */
 export function Hero({
   eyebrow,
@@ -20,6 +24,7 @@ export function Hero({
   features,
   badge = "Serving Solano & Bay Area Communities",
   ctaLabel = "Request Locksmith Service",
+  headline = "page",
 }: {
   eyebrow: string;
   titleLead: string;
@@ -29,6 +34,7 @@ export function Hero({
   features: readonly HeroFeature[];
   badge?: string;
   ctaLabel?: string;
+  headline?: "page" | "brand";
 }) {
   const photo = images[image];
   return (
@@ -39,13 +45,17 @@ export function Hero({
             <span className="h-px w-8 bg-gold/60" />
             {eyebrow}
           </p>
-          <h1
-            className="animate-fade-up text-4xl font-extrabold leading-[1.07] text-white sm:text-5xl lg:text-[3.4rem]"
-            style={{ animationDelay: "60ms" }}
-          >
-            {titleLead}
-            <span className="block text-gold">{titleAccent}</span>
-          </h1>
+          {headline === "brand" ? (
+            <BrandHeadline titleLead={titleLead} titleAccent={titleAccent} />
+          ) : (
+            <h1
+              className="animate-fade-up text-4xl font-extrabold leading-[1.07] text-white sm:text-5xl lg:text-[3.4rem]"
+              style={{ animationDelay: "60ms" }}
+            >
+              {titleLead}
+              <span className="block text-gold">{titleAccent}</span>
+            </h1>
+          )}
           <p
             className="mt-6 max-w-xl animate-fade-up text-base leading-relaxed text-white/70 sm:text-lg"
             style={{ animationDelay: "120ms" }}
@@ -104,5 +114,29 @@ export function Hero({
         </div>
       </div>
     </section>
+  );
+}
+
+/** Business name as the H1 (linked to the GMB, per the client rule), with the tagline beneath it. */
+function BrandHeadline({ titleLead, titleAccent }: { titleLead: string; titleAccent: string }) {
+  const [firstLine, secondLine] = business.nameLines;
+  return (
+    <>
+      <h1
+        className="animate-fade-up text-[3.25rem] font-extrabold uppercase leading-[0.95] tracking-tight sm:text-7xl lg:text-[5.25rem]"
+        style={{ animationDelay: "60ms" }}
+      >
+        <BusinessName plain className="transition-opacity hover:opacity-90">
+          <span className="block text-white">{firstLine}</span>
+          <span className="block text-gold">{secondLine}</span>
+        </BusinessName>
+      </h1>
+      <p
+        className="mt-6 animate-fade-up text-lg font-semibold leading-snug text-white/85 sm:text-xl lg:text-2xl"
+        style={{ animationDelay: "90ms" }}
+      >
+        {titleLead} <span className="text-gold-400">{titleAccent}</span>
+      </p>
+    </>
   );
 }
