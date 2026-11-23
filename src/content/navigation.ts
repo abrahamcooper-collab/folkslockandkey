@@ -6,6 +6,8 @@ export type NavLink = { readonly label: string; readonly href: string };
 
 export type NavGroup = {
   readonly title?: string;
+  /** Page for the group itself (cascade menus link each main service). */
+  readonly href?: string;
   readonly links: readonly NavLink[];
   /** Columns the group's links are laid out in on desktop. */
   readonly columns: 1 | 2 | 3;
@@ -17,6 +19,11 @@ export type NavItem =
       readonly kind: "menu";
       readonly id: "services" | "service-areas";
       readonly label: string;
+      /**
+       * "grid": every group's links shown at once. "cascade": only the group titles (main
+       * services) are listed; a group's links open in a flyout when its title is hovered/focused.
+       */
+      readonly layout: "grid" | "cascade";
       readonly groups: readonly NavGroup[];
       readonly viewAll: NavLink;
     };
@@ -30,8 +37,10 @@ export const primaryNav: readonly NavItem[] = [
     kind: "menu",
     id: "services",
     label: "Services",
+    layout: "cascade",
     groups: categories.map((category) => ({
       title: category.name,
+      href: `/services#${category.slug}`,
       columns: category.slug === "locksmith" ? 2 : 1,
       links: servicesInCategory(category.slug).map((service) => ({
         label: service.name,
@@ -47,6 +56,7 @@ export const primaryNav: readonly NavItem[] = [
     kind: "menu",
     id: "service-areas",
     label: "Service Areas",
+    layout: "grid",
     groups: [
       {
         columns: 3,

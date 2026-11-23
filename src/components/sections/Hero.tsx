@@ -40,7 +40,7 @@ export function Hero({
   return (
     <section id="home" className="relative bg-ink-900 pt-16">
       <div className="mx-auto grid max-w-container items-stretch gap-0 px-0 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="flex flex-col justify-center px-5 py-14 sm:px-8 lg:py-24 lg:pl-8 lg:pr-12">
+        <div className="relative z-10 flex flex-col justify-center px-5 py-14 sm:px-8 lg:py-24 lg:pl-8 lg:pr-12">
           <p className="mb-5 inline-flex animate-fade-up items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-gold">
             <span className="h-px w-8 bg-gold/60" />
             {eyebrow}
@@ -96,7 +96,9 @@ export function Hero({
             ))}
           </ul>
         </div>
-        <div className="relative min-h-[340px] overflow-hidden lg:min-h-[640px]">
+        {/* Below lg the photo is a full-bleed background behind the copy; from lg it is the
+            right-hand column, as in the template. */}
+        <div className="absolute inset-0 overflow-hidden lg:relative lg:inset-auto lg:min-h-[640px]">
           <Image
             src={photo.src}
             alt={photo.alt}
@@ -105,8 +107,9 @@ export function Hero({
             sizes="(min-width: 1200px) 570px, (min-width: 1024px) 48vw, 100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-linear-to-r/srgb from-ink-900 via-ink-900/40 to-transparent lg:from-ink-900/90 lg:via-ink-900/10 lg:to-transparent" />
-          <div className="absolute inset-0 bg-linear-to-t/srgb from-ink-900/70 via-transparent to-transparent lg:bg-none" />
+          {/* Mobile: an even dark wash so the copy on top stays readable. */}
+          <div className="absolute inset-0 bg-linear-to-b/srgb from-ink-900/80 via-ink-900/70 to-ink-900/90 lg:hidden" />
+          <div className="absolute inset-0 hidden bg-linear-to-r/srgb from-ink-900/90 via-ink-900/10 to-transparent lg:block" />
           <div className="absolute bottom-5 right-5 hidden items-center gap-2 rounded-md bg-ink-900/80 px-4 py-2.5 ring-1 ring-gold/30 backdrop-blur-xs lg:flex">
             <ShieldCheck className="h-4 w-4 text-gold" />
             <span className="text-xs font-semibold text-white/90">{badge}</span>

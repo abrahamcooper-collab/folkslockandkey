@@ -11,7 +11,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { ChevronDown, Menu, Phone, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Menu, Phone, X } from "lucide-react";
 import { business, phoneHref } from "@/content/business";
 import { CONTACT_HREF, primaryNav, type NavGroup, type NavItem } from "@/content/navigation";
 import { Logo } from "./Logo";
@@ -199,8 +199,15 @@ function DesktopMenu({ item }: { item: MenuItem }) {
   };
 
   return (
-    // Not `relative`: the panel is positioned against the header bar so wide menus stay on-screen.
-    <div onMouseEnter={() => setOpen(true)} onMouseLeave={close} onKeyDown={onKeyDown} onBlur={onBlur}>
+    // Grid menus are not `relative`: their panel is positioned against the header bar so wide
+    // menus stay on-screen. Cascade menus open directly under their trigger.
+    <div
+      className={item.layout === "cascade" ? "relative" : undefined}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={close}
+      onKeyDown={onKeyDown}
+      onBlur={onBlur}
+    >
       <button
         ref={triggerRef}
         type="button"
@@ -214,43 +221,145 @@ function DesktopMenu({ item }: { item: MenuItem }) {
           className={`h-4 w-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
         />
       </button>
-      <div
-        id={panelId}
-        className={`absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200 ${
-          open ? "visible opacity-100" : "invisible -translate-y-1 opacity-0"
-        }`}
-      >
-        <div
-          className={`grid gap-6 rounded-xl border border-white/10 bg-ink-900/95 p-6 shadow-lg shadow-ink-900/20 backdrop-blur-md ${PANEL_CLASS[item.id]}`}
+      {item.layout === "cascade" ? (
+        <CascadePanel id={panelId} item={item} open={open} onNavigate={close} />
+      ) : (
+        <GridPanel id={panelId} item={item} open={open} onNavigate={close} />
+      )}
+    </div>
+  );
+}
+
+type PanelProps = { id: string; item: MenuItem; open: boolean; onNavigate: () => void };
+
+const panelLinkClass =
+  "block rounded-md px-3 py-1.5 text-sm font-medium text-white/75 transition-colors hover:bg-white/5 hover:text-gold";
+
+const panelSurfaceClass =
+  "rounded-xl border border-white/10 bg-ink-900/95 shadow-lg shadow-ink-900/20 backdrop-blur-md";
+
+/** Every group's links at once, positioned against the header bar so wide menus stay on-screen. */
+function GridPanel({ id, item, open, onNavigate }: PanelProps) {
+  return (
+    <div
+      id={id}
+      className={`absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200 ${
+        open ? "visible opacity-100" : "invisible -translate-y-1 opacity-0"
+      }`}
+    >
+      <div className={`grid gap-6 p-6 ${panelSurfaceClass} ${PANEL_CLASS[item.id]}`}>
+        {item.groups.map((group, index) => (
+          <div key={group.title ?? index}>
+            {group.title && (
+              <p className="px-3 text-xs uppercase tracking-[0.18em] text-gold">{group.title}</p>
+            )}
+            <ul className={`grid gap-x-2 ${group.title ? "mt-3" : ""} ${COLUMN_CLASS[group.columns]}`}>
+              {group.links.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} onClick={onNavigate} className={panelLinkClass}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <Link
+          href={item.viewAll.href}
+          onClick={onNavigate}
+          className="col-span-full -mt-2 border-t border-white/10 px-3 pt-4 text-sm font-bold text-gold transition-colors hover:text-gold-400"
         >
-          {item.groups.map((group, index) => (
-            <div key={group.title ?? index}>
-              {group.title && (
-                <p className="px-3 text-xs uppercase tracking-[0.18em] text-gold">{group.title}</p>
-              )}
-              <ul className={`grid gap-x-2 ${group.title ? "mt-3" : ""} ${COLUMN_CLASS[group.columns]}`}>
-                {group.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      onClick={close}
-                      className="block rounded-md px-3 py-1.5 text-sm font-medium text-white/75 transition-colors hover:bg-white/5 hover:text-gold"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-          <Link
-            href={item.viewAll.href}
-            onClick={close}
-            className="col-span-full -mt-2 border-t border-white/10 px-3 pt-4 text-sm font-bold text-gold transition-colors hover:text-gold-400"
-          >
-            {item.viewAll.label} →
-          </Link>
-        </div>
+          {item.viewAll.label} →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Main services only; hovering or focusing one opens its sub-services in a flyout to the right.
+ * Nothing is expanded until a main service is hovered. The flyout sits inside its row and uses
+ * padding (not margin) for the gap, so moving the pointer across never leaves the menu.
+ */
+function CascadePanel({ id, item, open, onNavigate }: PanelProps) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  // Collapse the flyout whenever the menu closes, so it reopens showing main services only.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (!open) setActiveIndex(null);
+  }
+
+  return (
+    <div
+      id={id}
+      className={`absolute left-0 top-full pt-2 transition-all duration-200 ${
+        open ? "visible opacity-100" : "invisible -translate-y-1 opacity-0"
+      }`}
+    >
+      <div className={`relative w-64 p-2 ${panelSurfaceClass}`}>
+        <ul>
+          {item.groups.map((group, index) => {
+            const active = activeIndex === index;
+            return (
+              <li
+                key={group.title ?? index}
+                onMouseEnter={() => setActiveIndex(index)}
+                onFocus={() => setActiveIndex(index)}
+              >
+                <Link
+                  href={group.href ?? item.viewAll.href}
+                  onClick={onNavigate}
+                  aria-haspopup="true"
+                  aria-expanded={active}
+                  className={`flex items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold transition-colors ${
+                    active ? "bg-white/5 text-gold" : "text-white/85 hover:text-gold"
+                  }`}
+                >
+                  {group.title}
+                  <ChevronRight
+                    className={`h-4 w-4 text-gold transition-transform ${active ? "translate-x-0.5" : ""}`}
+                  />
+                </Link>
+                <div
+                  className={`absolute left-full top-0 pl-2 transition-all duration-200 ${
+                    active ? "visible opacity-100" : "invisible -translate-x-1 opacity-0"
+                  }`}
+                >
+                  <div className={`w-72 p-3 ${panelSurfaceClass}`}>
+                    <p className="px-3 pb-2 pt-1 text-xs uppercase tracking-[0.18em] text-gold">
+                      {group.title}
+                    </p>
+                    <ul>
+                      {group.links.map((link) => (
+                        <li key={link.href}>
+                          <Link
+                            href={link.href}
+                            onClick={onNavigate}
+                            tabIndex={active ? undefined : -1}
+                            className={panelLinkClass}
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <Link
+          href={item.viewAll.href}
+          onClick={onNavigate}
+          onMouseEnter={() => setActiveIndex(null)}
+          onFocus={() => setActiveIndex(null)}
+          className="mt-1 block border-t border-white/10 px-3 pb-1.5 pt-3 text-sm font-bold text-gold transition-colors hover:text-gold-400"
+        >
+          {item.viewAll.label} →
+        </Link>
       </div>
     </div>
   );
@@ -281,29 +390,33 @@ function MobileMenu({ item, onNavigate }: { item: MenuItem; onNavigate: () => vo
         }`}
       >
         <div className="overflow-hidden">
-          {item.groups.map((group, index) => (
-            <div key={group.title ?? index} className="pb-2 pl-3">
-              {group.title && (
-                <p className="px-3 pb-1 pt-2 text-xs uppercase tracking-[0.18em] text-gold">
-                  {group.title}
-                </p>
-              )}
-              <ul>
-                {group.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      onClick={onNavigate}
-                      tabIndex={open ? undefined : -1}
-                      className="block rounded-md px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/5 hover:text-gold"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {item.layout === "cascade"
+            ? item.groups.map((group, index) => (
+                <MobileGroup
+                  key={group.title ?? index}
+                  group={group}
+                  parentOpen={open}
+                  onNavigate={onNavigate}
+                />
+              ))
+            : item.groups.map((group, index) => (
+                <div key={group.title ?? index} className="pb-2 pl-3">
+                  <ul>
+                    {group.links.map((link) => (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          onClick={onNavigate}
+                          tabIndex={open ? undefined : -1}
+                          className={mobileSubLinkClass}
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
           <Link
             href={item.viewAll.href}
             onClick={onNavigate}
@@ -313,6 +426,75 @@ function MobileMenu({ item, onNavigate }: { item: MenuItem; onNavigate: () => vo
             {item.viewAll.label} →
           </Link>
         </div>
+      </div>
+    </div>
+  );
+}
+
+const mobileSubLinkClass =
+  "block rounded-md px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/5 hover:text-gold";
+
+/** A main service inside the mobile Services menu: its sub-services expand only when tapped. */
+function MobileGroup({
+  group,
+  parentOpen,
+  onNavigate,
+}: {
+  group: NavGroup;
+  parentOpen: boolean;
+  onNavigate: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  const reachable = parentOpen && open;
+
+  return (
+    <div className="pl-3">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        tabIndex={parentOpen ? undefined : -1}
+        onClick={() => setOpen((value) => !value)}
+        className="flex w-full items-center justify-between rounded-md px-3 py-3 text-left text-sm font-semibold text-white/85 transition-colors hover:bg-white/5 hover:text-gold"
+      >
+        {group.title}
+        <ChevronDown
+          className={`h-4 w-4 text-gold transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <div
+        id={panelId}
+        className={`grid transition-all duration-300 ease-out ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <ul className="overflow-hidden border-l border-gold/20 pl-2 ml-3">
+          {group.links.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                onClick={onNavigate}
+                tabIndex={reachable ? undefined : -1}
+                className={mobileSubLinkClass}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+          {group.href && (
+            <li>
+              <Link
+                href={group.href}
+                onClick={onNavigate}
+                tabIndex={reachable ? undefined : -1}
+                className="block rounded-md px-3 py-2.5 text-sm font-bold text-gold hover:bg-white/5"
+              >
+                All {group.title} →
+              </Link>
+            </li>
+          )}
+        </ul>
       </div>
     </div>
   );
