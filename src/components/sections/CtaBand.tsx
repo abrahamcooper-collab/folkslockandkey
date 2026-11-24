@@ -4,6 +4,7 @@ import { business, phoneHref } from "@/content/business";
 import { images } from "@/content/images";
 import { CONTACT_HREF } from "@/content/navigation";
 import { BusinessName } from "@/components/ui/BusinessName";
+import { TrustPills } from "@/components/ui/TrustBadges";
 
 /** Template closing call-to-action band over a darkened photo. */
 export function CtaBand() {
@@ -45,6 +46,7 @@ export function CtaBand() {
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
         </div>
+        <TrustPills className="mt-8 justify-center" />
       </div>
     </section>
   );

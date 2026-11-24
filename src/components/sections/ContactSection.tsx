@@ -18,6 +18,7 @@ import { business, emailHref, phoneHref } from "@/content/business";
 import { categories, servicesInCategory } from "@/content/services";
 import { PRESELECT_CATEGORY_EVENT } from "@/lib/service-request";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { TrustPills } from "@/components/ui/TrustBadges";
 
 /**
  * Template "Request Locksmith Service" section. Like the template, submitting validates the form
@@ -342,6 +343,7 @@ export function ContactSection({ defaultCategory = "" }: { defaultCategory?: str
               Reach out by phone or email and our team will follow up to discuss your service and
               availability.
             </p>
+            <TrustPills className="relative mt-5" />
             <div className="mt-7 space-y-3">
               <ContactCard href={phoneHref} icon={Phone} label="Call us" value={business.phone} />
               <ContactCard href={emailHref} icon={Mail} label="Email us" value={business.email} />

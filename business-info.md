@@ -95,7 +95,9 @@ All in California (Solano, Napa and Contra Costa counties).
   More images coming from the user.
 
 ## Owner instructions (binding)
-- _None provided._
+- Show "Licensed, Bonded & Insured" (Licensed — professional locksmith service; Bonded — added
+  customer assurance; Insured — business coverage; "Your Security. Our Responsibility.") directly
+  below the hero and in other visible places. Supplied by the client; license/bond numbers not given.
 
 ## Open questions
 - GMB "From the owner" text says they serve Saint John / Rothesay / Quispamsis, New Brunswick —

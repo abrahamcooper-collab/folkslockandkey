@@ -5,6 +5,7 @@ import { business, phoneHref } from "@/content/business";
 import { images, type ImageKey } from "@/content/images";
 import { CONTACT_HREF } from "@/content/navigation";
 import { BusinessName } from "@/components/ui/BusinessName";
+import { TrustBand } from "@/components/ui/TrustBadges";
 
 export type HeroFeature = { readonly icon: LucideIcon; readonly label: string };
 
@@ -116,6 +117,7 @@ export function Hero({
           </div>
         </div>
       </div>
+      <TrustBand />
     </section>
   );
 }

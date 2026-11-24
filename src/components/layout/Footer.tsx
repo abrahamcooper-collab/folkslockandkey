@@ -6,6 +6,7 @@ import { CONTACT_HREF } from "@/content/navigation";
 import { servicePath } from "@/content/services";
 import { BusinessName } from "@/components/ui/BusinessName";
 import { CurrentYear } from "./CurrentYear";
+import { TrustPills } from "@/components/ui/TrustBadges";
 import { Logo } from "./Logo";
 
 const footerServices = [
@@ -31,6 +32,7 @@ export function Footer() {
               Professional residential, commercial, and automotive locksmith services serving
               Vallejo, Napa, and surrounding Northern California communities.
             </p>
+            <TrustPills className="mt-5" />
           </div>
 
           <div>
